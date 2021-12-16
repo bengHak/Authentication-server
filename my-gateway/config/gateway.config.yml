@@ -1,0 +1,50 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  host: localhost
+apiEndpoints:
+  api-auth:
+    host: localhost
+    paths: "/api/auth/*"
+  api-user:
+    host: localhost
+    paths: "/api/user/*"
+serviceEndpoints:
+  auth:
+    url: "http://localhost:3001"
+  user:
+    url: "http://localhost:3002"
+policies:
+  - log
+  - proxy
+  - jwt
+  - request-transformer
+pipelines:
+  auth-pipe:
+    apiEndpoints:
+      - api-auth
+    policies:
+      - log:
+          action:
+            message: "auth ${req.method}"
+      - proxy:
+          - action:
+              serviceEndpoint: auth
+              changeOrigin: true
+
+  user-pipe:
+    apiEndpoints:
+      - api-user
+    policies:
+      - log:
+          action:
+            message: "user ${req.method}"
+      - jwt:
+          action:
+            secretOrPublicKey: "the-secret-key"
+            checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: user
+              changeOrigin: true

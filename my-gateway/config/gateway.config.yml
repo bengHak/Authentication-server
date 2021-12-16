@@ -4,6 +4,9 @@ admin:
   port: 9876
   host: localhost
 apiEndpoints:
+  api-admin:
+    host: localhost
+    paths: "/api/admin/*"
   api-auth:
     host: localhost
     paths: "/api/auth/*"
@@ -15,6 +18,8 @@ serviceEndpoints:
     url: "http://localhost:3001"
   user:
     url: "http://localhost:3002"
+  admin:
+    url: "http://localhost:3003"
 policies:
   - log
   - proxy
@@ -47,4 +52,20 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: user
+              changeOrigin: true
+
+  admin-pipe:
+    apiEndpoints:
+      - api-admin
+    policies:
+      - log:
+          action:
+            message: "admin ${req.method}"
+      - jwt:
+          action:
+            secretOrPublicKey: "smilegate_stove_jjang_jae_meet_dda"
+            checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: admin
               changeOrigin: true

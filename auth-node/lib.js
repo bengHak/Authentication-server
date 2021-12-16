@@ -26,11 +26,11 @@ exports.comparePW = async (pw, dbpw) => {
   return result;
 };
 
-exports.issueToken = async (user_id) => {
+exports.issueToken = async (user_id, authority) => {
   let result = "";
   try {
     result = jwt.sign(
-      { id: user_id },
+      { id: user_id, authority },
       secretKey,
       { expiresIn: "30d" },
       { algorithm: "HS256" }

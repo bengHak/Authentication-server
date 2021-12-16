@@ -11,10 +11,10 @@ app.use(pool);
 // auth router
 app.use("/api/auth", authRouter);
 
-app.get("/api/auth/intro", (req, res) => {
+app.get("/api/auth/", (req, res) => {
   res.send("This is auth server.");
 });
 
 app.listen(port, () => {
-  console.log(`Hello app listening at http://localhost:${port}`);
+  console.log(`Auth server listening at http://localhost:${port}`);
 });

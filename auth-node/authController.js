@@ -21,7 +21,7 @@ exports.signUpAPI = async (req, res) => {
       ]);
       const user_id = result[0].insertId;
       console.log(user_id);
-      let token = await issueToken(user_id);
+      let token = await issueToken(user_id, 0);
       if (!b_password || !token) throw e;
       await conn.commit();
       console.log(`${email} signup success`);
@@ -49,7 +49,7 @@ exports.signInAPI = async (req, res) => {
     const givenPassword = req.body.password;
 
     let result = await res.pool.query(SELECT_USER_BY_EMAIL, [email]);
-    let { id, password } = result[0][0];
+    let { id, password, authority } = result[0][0];
 
     let email_check = result[0].length > 0;
     if (!email_check) {
@@ -59,13 +59,13 @@ exports.signInAPI = async (req, res) => {
       if (!c_password) {
         res.status(400).json({ success: false, msg: "signin failed" });
       } else {
-        let token = await issueToken(id);
+        let token = await issueToken(id, authority);
         if (!token) throw e;
-        console.log(`${email} signin success`); // 지우기
+        console.log(`${email} signin success`);
         res.status(200).json({
           success: true,
           msg: "signin success",
-          data: { id, token },
+          data: { id, authority, token },
         });
       }
     }

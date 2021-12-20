@@ -1,5 +1,38 @@
+const { createClient } = require("redis");
 const { SELECT_USER_BY_EMAIL, INSERT_USER } = require("./query");
 const { bcryptPW, comparePW, issueToken, getNow } = require("./lib");
+
+// 인증 번호 비교하기
+exports.verifyRandomNumber = async (req, res) => {
+  const { email, code } = req.body;
+
+  const client = createClient();
+
+  try {
+    client.on("error", (err) => console.log("Redis Client Error", err));
+    await client.connect();
+    const value = await client.get(email);
+    console.log(value, code);
+    if (value === code) {
+      res.status(200).json({
+        success: true,
+        msg: "verify success",
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        msg: "verify failed",
+      });
+    }
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      msg: "verify error",
+    });
+  } finally {
+    client.quit();
+  }
+};
 
 // 회원가입
 exports.signUpAPI = async (req, res) => {

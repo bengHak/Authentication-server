@@ -13,6 +13,9 @@ apiEndpoints:
   api-user:
     host: localhost
     paths: "/api/user/*"
+  api-mail:
+    host: localhost
+    paths: "/api/mail/*"
 serviceEndpoints:
   auth:
     url: "http://localhost:3001"
@@ -20,6 +23,8 @@ serviceEndpoints:
     url: "http://localhost:3002"
   admin:
     url: "http://localhost:3003"
+  mail:
+    url: "http://localhost:3004"
 policies:
   - log
   - proxy
@@ -68,4 +73,16 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: admin
+              changeOrigin: true
+
+  mail-pipe:
+    apiEndpoints:
+      - api-mail
+    policies:
+      - log:
+          action:
+            message: "mail ${req.method}"
+      - proxy:
+          - action:
+              serviceEndpoint: mail
               changeOrigin: true

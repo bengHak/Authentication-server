@@ -2,6 +2,36 @@ const { createClient } = require("redis");
 const { SELECT_USER_BY_EMAIL, INSERT_USER } = require("./query");
 const { bcryptPW, comparePW, issueToken, getNow } = require("./lib");
 
+// 이메일 중복 체크
+exports.checkEmailAPI = async (req, res) => {
+  const conn = await res.pool.getConnection();
+  const { email } = req.body;
+
+  try {
+    const [rows] = await conn.query(SELECT_USER_BY_EMAIL, [email]);
+    if (rows.length === 0) {
+      console.log("email not exist");
+      res.status(200).json({
+        success: true,
+        msg: "email is available",
+      });
+    } else {
+      console.log("email exist");
+      res.status(200).json({
+        success: false,
+        msg: "email is already used",
+      });
+    }
+  } catch (e) {
+    res.status(500).json({
+      success: false,
+      msg: "error",
+    });
+  } finally {
+    conn.release();
+  }
+};
+
 // 인증 번호 비교하기
 exports.verifyRandomNumber = async (req, res) => {
   const { email, code } = req.body;

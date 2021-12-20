@@ -44,11 +44,14 @@ exports.signUpAPI = async (req, res) => {
 
 // 로그인
 exports.signInAPI = async (req, res) => {
+  const conn = await res.pool.getConnection();
   try {
     const email = req.body.email;
     const givenPassword = req.body.password;
 
-    let result = await res.pool.query(SELECT_USER_BY_EMAIL, [email]);
+    console.log(email, givenPassword);
+
+    let result = await conn.query(SELECT_USER_BY_EMAIL, [email]);
     let { id, password, authority } = result[0][0];
 
     let email_check = result[0].length > 0;
@@ -72,5 +75,7 @@ exports.signInAPI = async (req, res) => {
   } catch (e) {
     console.log(`signin e : ${e}`);
     res.status(400).json({ success: false, msg: "signin error" });
+  } finally {
+    await conn.release();
   }
 };
